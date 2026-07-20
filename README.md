@@ -1,8 +1,6 @@
 # omni_chat
 
-omni 视频对话
-
-基于 Qwen-Omni-Realtime 音视频实时对话工具
+omni 视频对话，基于 Qwen-Omni-Realtime 音视频实时对话工具
 
 ## 部署部署
 
@@ -46,12 +44,8 @@ uv run server_cli.py
 
 ## 功能
 
-# Qwen-Omni-Realtime 音视频实时对话工具
 
-基于通义千问 **Qwen-Omni-Realtime** 模型的音视频实时对话工具，支持语音对话、摄像头输入、屏幕共享、文本聊天等多种交互方式。
-
-## 功能特点
-
+功能特点
 - 🎙️ **语音对话** — 麦克风输入 + 实时语音播放
 - 📹 **视频输入** — 本地摄像头画面实时传输
 - 📺 **屏幕共享** — 浏览器端共享屏幕作为视频源
@@ -67,11 +61,11 @@ omni/
 ├── conf/
 │   ├── env.py          # API Key 与工作空间配置
 │   └── sp.py           # 系统提示词
-├── test_all.py         # Python 客户端（命令行音视频对话）
+├── server_cli.py         # Python 客户端（命令行音视频对话）
 ├── web/
 │   ├── index.html      # Web 调试页面
 │   ├── omni-client.js  # 浏览器端 JavaScript 客户端
-│   └── server.py       # WebSocket 代理 + 静态文件服务器
+│--── server.py       # WebSocket 代理 + 静态文件服务器
 └── README.md
 ```
 
