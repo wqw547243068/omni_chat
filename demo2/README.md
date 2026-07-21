@@ -22,7 +22,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/qwen-realtime-export.git
+git clone https://github.com/xiaoyuge886/qwen_omni_realtime.git
 cd qwen-realtime-export
 
 # 安装依赖
