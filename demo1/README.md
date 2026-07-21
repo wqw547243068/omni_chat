@@ -2,7 +2,7 @@
 
 通义千问实时音视频聊天模型（**Qwen-Omni-Realtime**）演示程序。
 
-本项目基于阿里云 [DashScope](https://dashscope.aliyun.com/) 的 `qwen3-omni-flash-realtime` 模型，结合 [FastRTC](https://github.com/freddyaboulton/fastrtc) + [Gradio](https://www.gradio.app/) 提供一个开箱即用的浏览器端实时音视频对话 Demo——用户通过摄像头和麦克风与模型交互，模型实时返回语音及文字。
+基于阿里云 [DashScope](https://dashscope.aliyun.com/) 的 `qwen3-omni-flash-realtime` 模型，结合 [FastRTC](https://github.com/freddyaboulton/fastrtc) + [Gradio](https://www.gradio.app/) 提供一个开箱即用的浏览器端实时音视频对话 Demo——用户通过摄像头和麦克风与模型交互，模型实时返回语音及文字。
 
 ## 功能特性
 
@@ -36,17 +36,13 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 # macOS / Linux
 source .venv/bin/activate
-
 pip install -r requirements.txt
 ```
 
 ### 3. 配置 API Key
 
-复制 `.env.example` 为 `.env`，并填入你的 DashScope API Key：
+`.env` 里填入 DashScope API Key：
 
-```bash
-cp .env.example .env
-```
 
 ```dotenv
 Qwen_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
