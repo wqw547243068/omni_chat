@@ -19,10 +19,10 @@ from dashscope.audio.qwen_omni import MultiModality, OmniRealtimeCallback, OmniR
 import dashscope
 import sys
 from dotenv import load_dotenv
+from conf.sp import system_prompt
 
 load_dotenv(dotenv_path='conf/.env')
 workspaceId = os.getenv('workspaceId')
-system_prompt = os.getenv('system_prompt')
 dashscope.api_key = os.getenv('DASHSCOPE_API_KEY')
 
 if not dashscope.api_key:
