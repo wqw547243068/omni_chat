@@ -1,0 +1,11 @@
+# Qwen Omni Realtime - Python Dependencies
+
+# Web Server
+aiohttp>=3.9.0
+
+# WebSocket Client
+websockets>=12.0
+
+# Optional: For development
+# pytest>=7.0.0
+# black>=23.0.0
