@@ -25,7 +25,7 @@ pip install pyaudio
 cp conf/env.example conf/.env
 ```
 
-编辑 `conf/env.example`：
+编辑 `conf/.env`：
 - 准备阿里百炼key: `DASHSCOPE_API_KEY`
 - 阿里百炼Agent平台:  `workspaceId`
 
