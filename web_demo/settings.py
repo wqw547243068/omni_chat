@@ -12,12 +12,14 @@ from pathlib import Path
 class Settings:
     host: str = "0.0.0.0"
     port: int = 3000
-    default_model: str = "qwen3-omni-flash-realtime"
+    # default_model: str = "qwen3-omni-flash-realtime"
+    default_model: str =  "qwen3.5-omni-plus-realtime"
     default_region: str = "wss://dashscope.aliyuncs.com/api-ws/v1/realtime"
 
     @property
     def repo_root(self) -> Path:
-        return Path(__file__).resolve().parent.parent
+        # return Path(__file__).resolve().parent.parent
+        return Path(__file__).resolve().parent
 
     @property
     def public_dir(self) -> Path:

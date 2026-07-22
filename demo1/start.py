@@ -28,7 +28,8 @@ from PIL import Image
 load_dotenv()
 
 dashscope.api_key = os.getenv("Qwen_API_KEY")
-MODEL = "qwen3-omni-flash-realtime"
+# MODEL = "qwen3-omni-flash-realtime"
+MODEL = "qwen3.5-omni-plus-realtime"
 API_URL = "wss://dashscope.aliyuncs.com/api-ws/v1/realtime"
 
 

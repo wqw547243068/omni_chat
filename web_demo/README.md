@@ -1,4 +1,4 @@
-# Qwen Omni Realtime
+# [Qwen Omni Realtime](https://github.com/xiaoyuge886/qwen_omni_realtime/tree/main)
 
 > 基于 Qwen Omni Realtime API 的实时语音与视频对话 Web 演示
 
