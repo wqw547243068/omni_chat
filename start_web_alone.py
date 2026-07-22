@@ -6,13 +6,13 @@ import base64
 import os
 import time
 from io import BytesIO
-
+import sys
 import dashscope
 import gradio as gr
 import numpy as np
 from dashscope.audio.qwen_omni import OmniRealtimeCallback, OmniRealtimeConversation
 from dashscope.audio.qwen_omni.omni_realtime import MultiModality
-from dotenv import load_dotenv
+
 from fastrtc import (
     AdditionalOutputs,
     AsyncAudioVideoStreamHandler,
@@ -25,11 +25,21 @@ from gradio.utils import get_space
 from PIL import Image
 
 
-load_dotenv()
+from dotenv import load_dotenv
+from conf.sp import system_prompt
 
-dashscope.api_key = os.getenv("Qwen_API_KEY")
-# MODEL = "qwen3-omni-flash-realtime"
-MODEL = "qwen3.5-omni-plus-realtime"
+load_dotenv(dotenv_path='conf/.env')
+workspaceId = os.getenv('workspaceId')
+dashscope.api_key = os.getenv('DASHSCOPE_API_KEY')
+
+if not dashscope.api_key:
+    print(f'配置信息读取失败！')
+    sys.exit(-1)
+
+url = f'wss://{workspaceId}.cn-beijing.maas.aliyuncs.com/api-ws/v1/realtime'
+model = os.getenv('MODEL', 'qwen3.5-omni-plus-realtime')
+voice = 'Tina' # "Cherry"
+
 API_URL = "wss://dashscope.aliyuncs.com/api-ws/v1/realtime"
 
 
@@ -109,7 +119,7 @@ class QwenOmniHandler(AsyncAudioVideoStreamHandler):
         self._event_loop = asyncio.get_running_loop()
         callback = QwenOmniCallback(self)
         self.conversation = OmniRealtimeConversation(
-            model=MODEL,
+            model=model,
             callback=callback,
             url=API_URL,
         )
@@ -119,29 +129,8 @@ class QwenOmniHandler(AsyncAudioVideoStreamHandler):
             print("Session connected")
             self.conversation.update_session(
                 output_modalities=[MultiModality.TEXT, MultiModality.AUDIO],
-                voice="Cherry",
-                instructions=(
-                    "##人设\n"
-                    "你是一个全能的超级助手，具备强大的知识库、情感理解能力和解决问题的能力。"
-                    "你的目标是高效、专业、友好地帮助用户完成各类任务，包括但不限于日常生活、工作安排、"
-                    "信息检索、学习辅导、创意写作、语言翻译和技术支持等；\n\n"
-                    "##技能\n"
-                    "- 用户会将视频中的某些视频帧截为图片送给你，如果用户询问与视频和图片有关的问题，"
-                    "请结合【图片】信息和【用户问题】进行回答；如果用户询问与视频和图片无关的问题，"
-                    "无需描述【图片】内容，直接回答【用户问题】；\n"
-                    "- 如果用户给你看的是学科题目，不需要把图片里的文字内容一个一个字读出来，"
-                    "只需要总结一下【图片】里的文字内容，然后直接回答【用户问题】，可以补充一些解题思路。\n\n"
-                    "##约束\n"
-                    "- 始终主动、礼貌、有条理；\n"
-                    "- 回答准确但不冗长，必要时可提供简洁总结+详细解释；\n"
-                    "- 不清楚的任务会主动澄清，不假设、不误导；\n"
-                    '- 如果用户问你“明天天气”等需要联网查询才能给出回答的问题，首先确认自己是否有 web_search 工具，'
-                    '如果没有，你可以和用户说“你问的问题需要实时联网才能回答，请开启联网功能再体验”；\n'
-                    '- 回答中不要出现“图片”、“图中”等字眼，直接根据你看到的内容回答用户问题。\n\n'
-                    "##特殊技能\n"
-                    "会有不同的人和你说话，你可以识别并区分不同的用户。如果你觉得需要明确下这句话是对谁说的，"
-                    "你可以在回复中加上用户的名字。"
-                ),
+                voice=voice,
+                instructions=system_prompt + "\n你可以看到用户的摄像头画面，请根据画面内容进行交流。",
             )
             print("Session configured")
             # Block the startup coroutine until the SDK thread exits.
