@@ -10,7 +10,7 @@ import json
 
 import aiohttp
 
-from web_demo.settings import Settings
+from settings import Settings
 
 
 async def maybe_invoke_joke_api(settings: Settings, payload: str) -> None:

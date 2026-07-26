@@ -15,8 +15,8 @@ from aiohttp import web
 import websockets
 import websockets.exceptions
 
-from web_demo.settings import Settings
-from web_demo.transcript_hooks import maybe_invoke_joke_api
+from settings import Settings
+from transcript_hooks import maybe_invoke_joke_api
 
 # 代理自定义：通知浏览器上游已 open，可发 session.update
 PROXY_CONNECTED_MESSAGE = json.dumps({"type": "__proxy_connected__"}, ensure_ascii=False)

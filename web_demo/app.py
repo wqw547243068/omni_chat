@@ -9,13 +9,13 @@ from dataclasses import replace
 
 from aiohttp import web
 
-from web_demo.handlers import (
+from handlers import (
     index_page,
     joke_api,
     joke_api_options,
     websocket_proxy,
 )
-from web_demo.settings import Settings, load_settings
+from settings import Settings, load_settings
 
 
 def create_app(settings: Settings | None = None) -> web.Application:
@@ -32,7 +32,7 @@ def create_app(settings: Settings | None = None) -> web.Application:
 
 def run(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
-        description="Qwen-O Omni Realtime 浏览器演示（本地代理 + public 静态页）"
+        description="Qwen-O Omni Realtime 浏览器演示"
     )
     parser.add_argument(
         "--host",
@@ -55,3 +55,6 @@ def run(argv: list[str] | None = None) -> None:
 
     print(f"\n✅ web_demo 已启动 → http://localhost:{s.port}\n")
     web.run_app(create_app(s), host=s.host, port=s.port)
+
+if __name__ == "__main__":
+    run()

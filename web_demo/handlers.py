@@ -6,8 +6,8 @@ import datetime
 
 from aiohttp import web
 
-from web_demo.relay import parse_proxy_query, run_websocket_relay
-from web_demo.settings import Settings
+from relay import parse_proxy_query, run_websocket_relay
+from settings import Settings
 
 
 async def joke_api(request: web.Request) -> web.Response:
