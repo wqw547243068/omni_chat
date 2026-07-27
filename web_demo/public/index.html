@@ -542,6 +542,38 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
+    padding: 16px;
+  }
+
+  /* 固定在卡片中的音频视频控制 */
+  .audio-video-card .float-control-center {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+  }
+
+  .audio-video-card .float-video-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .audio-video-card .float-video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .audio-video-card .float-video-container.active {
+    display: block;
+  }
+
+  .audio-video-card .float-video-container:not(.active) {
+    display: none;
   }
 
   .float-visualizer {
@@ -632,6 +664,73 @@
     font-size: 12px;
     color: var(--text-secondary);
     text-align: center;
+  }
+
+  /* 用户文本输入框样式 */
+  .text-input-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .text-input {
+    flex: 1;
+    height: 40px;
+    padding: 0 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .text-input:focus {
+    background: var(--bg-primary);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+  }
+
+  .text-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-send {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--accent-blue);
+    color: #ffffff;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-send:hover:not(:disabled) {
+    background: var(--accent-blue-hover);
+    box-shadow: var(--shadow-md);
+    transform: scale(1.05);
+  }
+
+  .btn-send:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  .btn-send:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
   }
 
   /* 旧的视频预览样式（保留用于布局） */
@@ -952,6 +1051,13 @@
             </div>
           </div>
 
+          <!-- System Prompt 文本输入框 -->
+          <div class="form-group">
+            <label class="form-label">系统提示词 (System Prompt)</label>
+            <textarea class="form-input" id="systemPrompt" rows="4" placeholder="自定义系统提示词，留空则使用后端配置的默认值..." style="resize: none; min-height: 80px; max-height: 400px; font-family: inherit; overflow: hidden; transition: height 0.1s ease;"></textarea>
+            <small style="color: var(--text-tertiary); font-size: 12px; margin-top: 4px; display: block;">贯穿对话的人物设定和行为指令</small>
+          </div>
+
           <div class="divider"></div>
 
           <div class="button-row">
@@ -984,6 +1090,43 @@
               <div class="empty-state-text">Start a conversation after connecting</div>
             </div>
           </div>
+          
+          <!-- 用户文本输入框 -->
+          <div class="text-input-container" style="margin-top: 16px; max-width: none;">
+            <input type="text" class="text-input" id="userTextInput" placeholder="输入消息按 Enter 发送..." disabled>
+            <button class="btn-send" id="btnSendText" disabled>⏵</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audio & Video Card -->
+      <div class="card audio-video-card">
+        <div class="card-header">
+          <span class="card-title">Audio & Video</span>
+          <div class="status-badge" id="avStatus">
+            <span class="status-dot" id="avStatusDot"></span>
+            <span id="avStatusText">Not Connected</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- 视频预览 -->
+          <div class="float-video-container" id="videoPreview">
+            <video id="cameraVideo" autoplay muted playsinline></video>
+            <div class="float-video-overlay">
+              <div class="status-dot"></div>
+              <span id="cameraStatus">Live</span>
+            </div>
+          </div>
+          
+          <!-- 音频可视化和控制按钮 -->
+          <div class="float-control-center">
+            <div class="float-visualizer" id="visualizer"></div>
+            <div class="float-control-buttons">
+              <button class="btn-round btn-mic" id="btnMic" disabled>🎤</button>
+              <button class="btn-round btn-camera" id="btnCamera" disabled>📷</button>
+            </div>
+            <div class="float-control-hint" id="micHint">Connect to start</div>
+          </div>
         </div>
       </div>
 
@@ -1003,47 +1146,104 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     可拖动浮动面板（麦克风、摄像头、视频）
-  ═══════════════════════════════════════════════════════ -->
-<div class="floating-panel" id="floatingPanel">
-  <div class="panel-header" id="panelHeader">
-    <div class="panel-drag-area">
-      <div class="panel-icon">🎙️</div>
-      <span class="panel-title">Audio & Video</span>
-    </div>
-    <div class="panel-controls">
-      <button class="panel-control-btn panel-minimize-btn" id="panelMinimizeBtn" title="Minimize">−</button>
-    </div>
-    <div class="panel-icon" style="display:none;">🎙️</div>
-  </div>
-  <div class="panel-content">
-    <!-- 视频预览 -->
-    <div class="float-video-container" id="floatVideoPreview">
-      <video id="floatCameraVideo" autoplay muted playsinline></video>
-      <div class="float-video-overlay">
-        <div class="status-dot"></div>
-        <span id="floatCameraStatus">Live</span>
-      </div>
-    </div>
 
-    <!-- 控制中心 -->
-    <div class="float-control-center">
-      <div class="float-visualizer" id="floatVisualizer"></div>
-      <div class="float-control-buttons">
-        <button class="btn-round btn-mic" id="floatBtnMic" disabled>🎙️</button>
-        <button class="btn-round btn-camera" id="floatBtnCamera" disabled>📷</button>
-      </div>
-      <div class="float-control-hint" id="floatMicHint">Connect to start</div>
-    </div>
-  </div>
-</div>
 
 <script>
 // ═══════════════════════════════════════════════════════
 //  状态变量
 // ═══════════════════════════════════════════════════════
 let ws = null;
+
+// ═══════════════════════════════════════════════════════
+//  自动调整 textarea 高度
+// ═══════════════════════════════════════════════════════
+function autoResizeTextarea(textarea) {
+  textarea.style.height = 'auto';
+  const newHeight = Math.min(Math.max(textarea.scrollHeight, 80), 400);
+  textarea.style.height = newHeight + 'px';
+}
+
+function initAutoResizeTextarea(elementId) {
+  const textarea = document.getElementById(elementId);
+  if (!textarea) return;
+  
+  textarea.addEventListener('input', function() {
+    autoResizeTextarea(this);
+  });
+  
+  textarea.addEventListener('focus', function() {
+    autoResizeTextarea(this);
+  });
+  
+  // 初始调整
+  autoResizeTextarea(textarea);
+}
+
+let backendConfig = {
+  systemPrompt: '',
+  defaultModel: 'qwen3.5-omni-plus-realtime',
+  defaultVoice: 'Tina',
+  defaultUrl: ''
+};
+
+async function loadConfig() {
+  console.log('[Config] 开始加载...');
+  try {
+    const keyInput = document.getElementById('apiKey');
+    console.log('[Config] apiKey 元素:', keyInput ? '找到' : '未找到');
+    
+    const resp = await fetch('/api/config');
+    console.log('[Config] HTTP 状态:', resp.status);
+    
+    if (!resp.ok) {
+      console.error('[Config] 请求失败:', resp.status);
+      return;
+    }
+    
+    const data = await resp.json();
+    console.log('[Config] 返回数据:', data);
+    
+    if (data.success) {
+      // 1. 填充 API Key 默认值
+      if (keyInput) {
+        console.log('[Config] keyInput.value 当前值:', keyInput.value ? '有值' : '空');
+        console.log('[Config] data.api_key:', data.api_key ? '存在' : '不存在');
+        
+        if (!keyInput.value && data.api_key) {
+          keyInput.value = data.api_key;
+          keyInput.placeholder = 'API Key (已填充)';
+          log('API Key 已从配置加载', 'info');
+          console.log('[Config] API Key 已填充成功');
+        } else if (keyInput.value) {
+          console.log('[Config] API Key 已有值，未覆盖');
+        } else if (!data.api_key) {
+          console.log('[Config] 后端未返回 api_key');
+        }
+      }
+      
+      // 2. 填充系统提示词默认值
+      const spInput = document.getElementById('systemPrompt');
+      if (spInput && !spInput.value && data.system_prompt) {
+        spInput.value = data.system_prompt;
+        spInput.placeholder = '系统提示词 (已填充后端配置)';
+        console.log('[Config] 系统提示词已填充');
+      }
+      
+      backendConfig.systemPrompt = data.system_prompt || '';
+      
+      // 初始化 textarea 自动调整高度
+      initAutoResizeTextarea('systemPrompt');
+      backendConfig.defaultModel = data.model || 'qwen3.5-omni-plus-realtime';
+      backendConfig.defaultVoice = data.voice || 'Tina';
+      backendConfig.defaultUrl = data.url || '';
+      log('系统配置加载成功', 'success');
+    } else {
+      console.error('[Config] 返回数据 success=false:', data);
+    }
+  } catch (e) {
+    console.error('[Config] 加载失败:', e);
+  }
+}
 let captureAudioContext = null;
 let playbackAudioContext = null;
 let mediaStream = null;
@@ -1174,7 +1374,7 @@ function initDraggablePanel() {
 //  音频可视化
 // ═══════════════════════════════════════════════════════
 function initVisualizer() {
-  const wrap = document.getElementById('floatVisualizer');
+  const wrap = document.getElementById('visualizer');
   wrap.innerHTML = '';
   for (let i = 0; i < 20; i++) {
     const b = document.createElement('div');
@@ -1185,7 +1385,7 @@ function initVisualizer() {
 }
 function drawVisualizer() {
   if (!analyser) return;
-  const bars = document.querySelectorAll('#floatVisualizer .float-visualizer-bar');
+  const bars = document.querySelectorAll('#visualizer .float-visualizer-bar');
   const data = new Uint8Array(analyser.frequencyBinCount);
   analyser.getByteFrequencyData(data);
   const step = Math.floor(data.length / bars.length);
@@ -1197,7 +1397,7 @@ function drawVisualizer() {
 }
 function stopVisualizer() {
   if (animFrameId) cancelAnimationFrame(animFrameId);
-  document.querySelectorAll('#floatVisualizer .float-visualizer-bar').forEach(b => {
+  document.querySelectorAll('#visualizer .float-visualizer-bar').forEach(b => {
     b.style.height = '2px';
   });
 }
@@ -1273,9 +1473,11 @@ function connect() {
       sendSessionUpdate();
       document.getElementById('btnConnect').disabled = true;
       document.getElementById('btnDisconnect').disabled = false;
-      document.getElementById('floatBtnMic').disabled = false;
-      document.getElementById('floatBtnCamera').disabled = false;
-      document.getElementById('floatMicHint').textContent = 'Tap microphone to start';
+      document.getElementById('btnMic').disabled = false;
+      document.getElementById('btnCamera').disabled = false;
+      document.getElementById('userTextInput').disabled = false;
+      document.getElementById('btnSendText').disabled = false;
+      document.getElementById('micHint').textContent = 'Tap microphone or type message';
       return;
     }
 
@@ -1306,6 +1508,12 @@ function connect() {
   };
 }
 
+function getSystemPrompt() {
+  const customPrompt = document.getElementById('systemPrompt').value.trim();
+  // 优先使用用户输入的值，否则使用后端配置
+  return customPrompt || backendConfig.systemPrompt || '你是一个友好的AI助手。你可以看到用户的摄像头画面，结合视觉信息回答问题。';
+}
+
 function sendSessionUpdate() {
   const voice = document.getElementById('voice').value;
   const vadMode = document.getElementById('vadMode').value;
@@ -1316,7 +1524,7 @@ function sendSessionUpdate() {
     session: {
       modalities: ['text', 'audio'],
       voice: voice,
-      instructions: '你是一个友好的AI助手。你可以看到用户的摄像头画面，结合视觉信息回答问题。',
+      instructions: getSystemPrompt(),
       input_audio_format: 'pcm',
       output_audio_format: 'pcm',
       turn_detection: vadMode === 'none' ? null : {
@@ -1330,6 +1538,44 @@ function sendSessionUpdate() {
   ws.send(JSON.stringify(cfg));
   log(`Session configured (voice: ${voice})`, 'info');
 }
+
+function sendTextMessage() {
+  const input = document.getElementById('userTextInput');
+  const text = input.value.trim();
+  if (!text || !isConnected || !ws || ws.readyState !== WebSocket.OPEN) return;
+  
+  // 创建用户消息事件
+  const messageEvent = {
+    event_id: `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    type: 'conversation.item.create',
+    item: {
+      type: 'message',
+      role: 'user',
+      content: [
+        {
+          type: 'input_text',
+          text: text
+        }
+      ]
+    }
+  };
+  
+  ws.send(JSON.stringify(messageEvent));
+  
+  // 清空输入框
+  input.value = '';
+  
+  // 显示在对话记录中
+  addMessage('user', text);
+  log(`发送: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`, 'info');
+  
+  // 触发 AI 响应
+  ws.send(JSON.stringify({
+    event_id: `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    type: 'response.create'
+  }));
+}
+
 
 function handleServerEvent(ev) {
   switch (ev.type) {
@@ -1412,9 +1658,9 @@ async function startCamera() {
     };
 
     cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
-    cameraVideo = document.getElementById('floatCameraVideo');
+    cameraVideo = document.getElementById('cameraVideo');
     cameraVideo.srcObject = cameraStream;
-    document.getElementById('floatVideoPreview').classList.add('active');
+    document.getElementById('videoPreview').classList.add('active');
 
     canvas = document.createElement('canvas');
     canvas.width = 1280;
@@ -1422,8 +1668,8 @@ async function startCamera() {
     canvasCtx = canvas.getContext('2d', { willReadFrequently: true });
 
     isCameraEnabled = true;
-    document.getElementById('floatBtnCamera').classList.add('active');
-    document.getElementById('floatCameraStatus').textContent = 'Live';
+    document.getElementById('btnCamera').classList.add('active');
+    document.getElementById('cameraStatus').textContent = 'Live';
 
     log('Camera started', 'success');
     startVideoLoop();
@@ -1448,11 +1694,11 @@ async function stopCamera() {
   if (cameraVideo) {
     cameraVideo.srcObject = null;
   }
-  document.getElementById('floatVideoPreview').classList.remove('active');
+  document.getElementById('videoPreview').classList.remove('active');
 
   isCameraEnabled = false;
-  document.getElementById('floatBtnCamera').classList.remove('active');
-  document.getElementById('floatCameraStatus').textContent = 'Off';
+  document.getElementById('btnCamera').classList.remove('active');
+  document.getElementById('cameraStatus').textContent = 'Off';
 
   log('Camera stopped', 'info');
 }
@@ -1488,9 +1734,9 @@ function captureAndSendFrame() {
       image: base64Data
     }));
 
-    document.getElementById('floatVideoPreview').classList.add('sending');
+    document.getElementById('videoPreview').classList.add('sending');
     setTimeout(() => {
-      document.getElementById('floatVideoPreview').classList.remove('sending');
+      document.getElementById('videoPreview').classList.remove('sending');
     }, 200);
 
   } catch (e) {
@@ -1588,9 +1834,9 @@ async function startRecording() {
     };
 
     isRecording = true;
-    document.getElementById('floatBtnMic').classList.add('recording');
-    document.getElementById('floatBtnMic').textContent = '⏹';
-    document.getElementById('floatMicHint').textContent =
+    document.getElementById('btnMic').classList.add('recording');
+    document.getElementById('btnMic').textContent = '⏹';
+    document.getElementById('micHint').textContent =
       document.getElementById('vadMode').value === 'server_vad'
         ? 'Auto mode — stops automatically'
         : 'Manual mode — tap stop to submit';
@@ -1622,18 +1868,18 @@ function stopRecording() {
   }
 
   isRecording = false;
-  document.getElementById('floatBtnMic').classList.remove('recording');
-  document.getElementById('floatBtnMic').textContent = '🎙️';
-  document.getElementById('floatMicHint').textContent = 'Tap microphone to start';
+  document.getElementById('btnMic').classList.remove('recording');
+  document.getElementById('btnMic').textContent = '🎙️';
+  document.getElementById('micHint').textContent = 'Tap microphone to start';
   setStatus('connected', 'Connected');
   stopVisualizer();
   log('Recording stopped', 'info');
 }
 
-document.getElementById('floatBtnMic').addEventListener('click', () => {
+document.getElementById('btnMic').addEventListener('click', () => {
   if (isRecording) stopRecording(); else startRecording();
 });
-document.getElementById('floatBtnCamera').addEventListener('click', toggleCamera);
+document.getElementById('btnCamera').addEventListener('click', toggleCamera);
 
 // ═══════════════════════════════════════════════════════
 //  断开
@@ -1661,9 +1907,11 @@ function disconnect() {
 function resetUI() {
   document.getElementById('btnConnect').disabled = false;
   document.getElementById('btnDisconnect').disabled = true;
-  document.getElementById('floatBtnMic').disabled = true;
-  document.getElementById('floatBtnCamera').disabled = true;
-  document.getElementById('floatMicHint').textContent = 'Connect to start';
+  document.getElementById('btnMic').disabled = true;
+  document.getElementById('btnCamera').disabled = true;
+  document.getElementById('userTextInput').disabled = true;
+  document.getElementById('btnSendText').disabled = true;
+  document.getElementById('micHint').textContent = 'Connect to start';
   stopVisualizer();
   hasSentAudio = false;
   if (isCameraEnabled) {
@@ -1676,8 +1924,14 @@ document.getElementById('btnDisconnect').addEventListener('click', disconnect);
 
 // 初始化
 initVisualizer();
-initDraggablePanel();
 log('Ready to connect. Enter your API key above.', 'info');
+loadConfig();  // 加载服务端配置
+
+// 文本输入框事件绑定
+document.getElementById('userTextInput').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') sendTextMessage();
+});
+document.getElementById('btnSendText').addEventListener('click', sendTextMessage);
 </script>
 </body>
 </html>
