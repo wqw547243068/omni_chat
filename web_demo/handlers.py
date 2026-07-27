@@ -46,6 +46,33 @@ async def joke_api_options(_: web.Request) -> web.Response:
     )
 
 
+async def config_api(request: web.Request) -> web.Response:
+    """返回系统配置：api_key 默认值 和 system_prompt"""
+    settings: Settings = request.app["settings"]
+    return web.json_response(
+        {
+            "success": True,
+            "api_key": settings.api_key,
+            "system_prompt": settings.default_sp,
+            "model": settings.default_model,
+            "voice": settings.voice,
+            "url": settings.default_region
+        },
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
+
+
+async def config_api_options(_: web.Request) -> web.Response:
+    """CORS 预检响应"""
+    return web.Response(
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+        },
+    )
+
+
 async def index_page(request: web.Request) -> web.FileResponse:
     settings: Settings = request.app["settings"]
     index_file = settings.public_dir / "index.html"
