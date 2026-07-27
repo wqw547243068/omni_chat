@@ -14,6 +14,8 @@ from handlers import (
     joke_api,
     joke_api_options,
     websocket_proxy,
+    config_api,
+    config_api_options,
 )
 from settings import Settings, load_settings
 
@@ -26,6 +28,9 @@ def create_app(settings: Settings | None = None) -> web.Application:
     app.router.add_post("/api/joke", joke_api)
     app.router.add_get("/api/joke", joke_api)
     app.router.add_options("/api/joke", joke_api_options)
+    # 新增：配置获取接口
+    app.router.add_get("/api/config", config_api)
+    app.router.add_options("/api/config", config_api_options)
     app.router.add_get("/", index_page)
     return app
 
